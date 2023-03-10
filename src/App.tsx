@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import MoviesList from "./components/MoviesList";
 import "./App.css";
 import MovieModel, { FetchedMovieList } from "./models/MovieModel";
+import AddMovie from "./components/AddMovie";
 
 function App() {
   const [movies, setMovies] = useState<MovieModel[]>([]);
@@ -13,22 +14,26 @@ function App() {
     try {
       setHasError(null);
       setIsLoading(true);
-      const response = await fetch("https://swapi.dev/api/films/");
+      const response = await fetch(
+        "https://react-http-4ee6a-default-rtdb.europe-west1.firebasedatabase.app/movies.json"
+      );
 
       if (response.status !== 200) {
         throw new Error("Somthing went wrong!");
       }
 
       const data: FetchedMovieList = await response.json();
-      //if(response.status)
-      const receivedMovies = data.results.map(function (movie): MovieModel {
-        return {
-          id: movie.episode_id,
-          title: movie.title,
-          releaseDate: movie.release_date,
-          openingText: movie.opening_crawl,
-        };
-      });
+
+      const receivedMovies: MovieModel[] = [];
+      for (const key in data) {
+        receivedMovies.push({
+          id: key,
+          title: data[key].title,
+          releaseDate: data[key].releaseDate,
+          openingText: data[key].openingText,
+        });
+      }
+
       setMovies(receivedMovies);
     } catch (error: unknown) {
       setHasError((error as Error).message);
@@ -36,6 +41,26 @@ function App() {
       setIsLoading(false);
     }
   }, []);
+
+  const addMovieHandler = async function (movie: MovieModel) {
+    try {
+      const response = await fetch(
+        "https://react-http-4ee6a-default-rtdb.europe-west1.firebasedatabase.app/movies.json",
+        {
+          method: "POST",
+          body: JSON.stringify(movie),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status !== 200) {
+        throw new Error("Somthing went wrong!");
+      }
+      const data = await response.json();
+    } catch (error) {
+      setHasError((error as Error).message);
+    } finally {
+    }
+  };
 
   useEffect(() => {
     fetchMoviesHandler();
@@ -52,6 +77,9 @@ function App() {
   if (isLoading) content = <p>Loading data...</p>;
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
