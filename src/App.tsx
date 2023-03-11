@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import MoviesList from "./components/MoviesList";
 import "./App.css";
-import MovieModel, { FetchedMovieList } from "./models/MovieModel";
+import MovieModel, { FetchedMovie } from "./models/MovieModel";
 import AddMovie from "./components/AddMovie";
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
         throw new Error("Somthing went wrong!");
       }
 
-      const data: FetchedMovieList = await response.json();
+      const data: FetchedMovie = await response.json();
 
       const receivedMovies: MovieModel[] = [];
       for (const key in data) {

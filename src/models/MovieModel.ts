@@ -1,4 +1,4 @@
-export interface FetchedMovieList {
+export interface FetchedMovie {
   [key: string]: {
     openingText: string;
     releaseDate: string;
